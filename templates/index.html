@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Aprobará el estudiante? - MLP</title>
+<style>
+  :root { --azul:#1f4e9c; --verde:#1e8a4c; --rojo:#c0392b; --fondo:#f3f5f9; }
+  * { box-sizing: border-box; }
+  body { font-family: Segoe UI, Arial, sans-serif; background-color: var(--fondo); background-image: linear-gradient(rgba(255,255,255,.45), rgba(255,255,255,.45)), url("{{ url_for('static', filename='fondo.jpg') }}"); background-size: cover; background-position: center; background-attachment: fixed; margin:0; padding:24px; color:#222; min-height:100vh; }
+  .caja { max-width: 640px; margin: 0 auto; background:#fff; border-radius:14px; padding:28px; box-shadow:0 4px 16px rgba(0,0,0,.08); }
+  .logo { display:block; margin:0 auto 14px; max-width:140px; height:auto; border-radius:10px; }
+  h1 { margin:0 0 6px; font-size:1.5rem; color:var(--azul); text-align:center; }
+  p.sub { margin:0 0 20px; color:#555; text-align:center; }
+  .fila { display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+  label { display:block; font-weight:600; font-size:.9rem; margin-bottom:4px; }
+  small { color:#777; font-weight:400; }
+  input, select { width:100%; padding:10px; border:1px solid #ccd; border-radius:8px; font-size:1rem; }
+  button { margin-top:20px; width:100%; padding:12px; border:0; border-radius:8px; background:var(--azul); color:#fff; font-size:1.05rem; cursor:pointer; }
+  button:hover { filter: brightness(1.1); }
+  .resultado { margin-top:22px; padding:18px; border-radius:10px; text-align:center; font-size:1.3rem; font-weight:700; color:#fff; }
+  .ok { background:var(--verde); } .mal { background:var(--rojo); }
+  .resultado span { display:block; font-size:.9rem; font-weight:400; margin-top:4px; }
+  .error { margin-top:16px; padding:12px; background:#fdecea; color:#a93226; border-radius:8px; }
+  @media (max-width:520px){ .fila{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="caja">
+  <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo del taller MLP" class="logo">
+  <h1>¿Aprobará el estudiante?</h1>
+  <p class="sub">Escribe los datos del estudiante y el modelo MLP predice si aprueba o reprueba.</p>
+
+  <form method="post" action="/predecir">
+    <div class="fila">
+      <div><label>Tareas <small>(0-100)</small></label>
+        <input type="number" step="any" name="Tareas" required value="{{ valores.get('Tareas','') }}"></div>
+      <div><label>Exámenes <small>(0-100)</small></label>
+        <input type="number" step="any" name="Examenes" required value="{{ valores.get('Examenes','') }}"></div>
+      <div><label>Asistencia % <small>(0-100)</small></label>
+        <input type="number" step="any" name="Asistencia" required value="{{ valores.get('Asistencia','') }}"></div>
+      <div><label>Horas de estudio por semana</label>
+        <input type="number" step="any" name="Estudio_Horas" required value="{{ valores.get('Estudio_Horas','') }}"></div>
+      <div><label>Horas de sueño por día <small>(0-24)</small></label>
+        <input type="number" step="any" name="Sueno_Horas" required value="{{ valores.get('Sueno_Horas','') }}"></div>
+      <div><label>¿Actividades extracurriculares?</label>
+        <select name="Extracurriculares">
+          <option value="1" {% if valores.get('Extracurriculares')=='1' %}selected{% endif %}>Sí</option>
+          <option value="0" {% if valores.get('Extracurriculares')=='0' %}selected{% endif %}>No</option>
+        </select></div>
+    </div>
+    <button type="submit">Predecir</button>
+  </form>
+
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+  {% if resultado %}
+    <div class="resultado {{ 'ok' if resultado.clase==1 else 'mal' }}">
+      {{ resultado.texto }}
+      <span>Probabilidad de aprobar: {{ resultado.probabilidad }}%</span>
+    </div>
+  {% endif %}
+</div>
+</body>
+</html>
